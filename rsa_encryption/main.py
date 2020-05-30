@@ -1,50 +1,15 @@
-def is_prime(n):
-    if n <= 1:
-        return False
-    if n <= 3:
-        return True
-    if n % 2 == 0:
-        return False
-    for i in range(5, n//2):
-        if n % i == 0:
-            return False
-    return True
+'''
+RSA Encryption module
+'''
+
+from additional_functions import gcd, find_degree_mod, find_inverse, is_prime
 
 
-def get_input():
-    message = input("Enter a message: ")
-    p = int(input("Please enter a prime number p: "))
-    while not is_prime(p):
-        p = int(input("Please enter a prime number p: "))
-    q = int(input("Please enter a prime number q: "))
-    while not is_prime(q):
-        q = int(input("Please enter a prime number q: "))
-    return message, p, q
-
-
-def gcd(x, y):
-    while y != 0:
-        r = x % y
-        x = y
-        y = r
-    return x
-
-
-def find_inverse(x, y):
-    oldolds = 1
-    olds = 0
-    while y != 0:
-        q = x // y
-        r = x % y
-        x = y
-        y = r
-        s = oldolds - q*olds
-        oldolds = olds
-        olds = s
-    return oldolds
-
-
-def generate_keys(p, q):
+def generate_keys(p: int, q: int) -> tuple:
+    '''
+    Function, which returns a tuple of
+    n number, public and private keys
+    '''
     n = p * q
     number = (p-1) * (q-1)
     i = 1
@@ -57,19 +22,48 @@ def generate_keys(p, q):
     return n, e, d
 
 
-def replace(message, e, n):
+def encode(message: str, e: int, n: int) -> str:
+    '''
+    Function for encoding the message
+    '''
+    if len(message) % 2 == 1:
+        message += "a"
     message = message.upper()
     replaced = ''.join(str(ord(letter) - ord("A")).rjust(2, "0")
                        for letter in message)
-    a = ''.join(str(int(replaced[i:i+4].lstrip("0"))**e % n).rjust(4, "0")
-                for i in range(0, len(replaced), 4))
-    return a
+    encoded = ''.join(str(find_degree_mod(int(replaced[i:i+4].lstrip("0")), e, n)).rjust(4, "0")
+                      for i in range(0, len(replaced), 4))
+    return encoded
 
 
-def main():
+def get_input() -> tuple:
+    '''Read user input'''
+    message = input("Enter a message: ")
+    while True:
+        try:
+            p = int(input("Please enter a prime number p: "))
+            if is_prime(p):
+                break
+        except TypeError:
+            continue
+    while True:
+        try:
+            q = int(input("Please enter a prime number q: "))
+            if is_prime(q):
+                break
+        except TypeError:
+            continue
+
+    return message, p, q
+
+
+def main() -> None:
+    '''
+    Runs the main program
+    '''
     message, p, q = get_input()
-    n, e, d = generate_keys(p, q)
-    print(replace(message, e, n))
+    n, e, _ = generate_keys(p, q)
+    print(encode(message, e, n))
 
 
 if __name__ == '__main__':
