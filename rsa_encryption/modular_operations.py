@@ -55,3 +55,15 @@ def encrypt(message, n, e):
                          for M in blocks)
 
     return encrypted
+
+
+if __name__ == '__main__':
+    message = input("Enter a message: ")
+    p = int(input("Please enter a prime number p: "))
+    while not is_prime(p):
+        p = int(input("Please enter a prime number p: "))
+    q = int(input("Please enter a prime number q: "))
+    while not is_prime(q):
+        q = int(input("Please enter a prime number q: "))
+    n, e = generate_keys(p, q)
+    print(encrypt(message, n, e))
